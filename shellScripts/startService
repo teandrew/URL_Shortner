@@ -1,0 +1,22 @@
+#!/bin/bash
+CWD="`pwd`"
+
+rm -rf out
+mkdir -p out
+mkdir -p pids
+
+# Compile Java Programs
+./compilePrograms
+
+# Start Proxy Server
+LOAD_HOST=`head -n 1 $CWD/hosts`
+
+ssh $LOAD_HOST "cd \"$CWD\"; ./startLoadBalancer $LOAD_HOST"
+
+for host in `tail -n +2 $CWD/hosts`
+do
+	ssh $host "cd \"$CWD\"; ./startServiceLocal $host;"
+done
+
+# Assign backups to each host
+./mapBackups

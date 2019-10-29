@@ -1,0 +1,74 @@
+Architecture
+
+The core of our URLShortener's scalability is consistent hashing. Every node in the cluster 
+of hosts that run URLShortener has a hostname (e.g. dh2020pc04). That hostname is hashed and
+then converted to a long. The long is then plotted on a circle, where values increase clockwise
+and the largest number you can represent with a long wraps back around to the smallest number 
+you can represent with a long. With this mapping in place, any short that the load balancer 
+receives is hashed and then converted to a long. Wherever that short lands on the circle, it 
+walks clockwise until it hits a node, making that node responsible for that short.
+
+With this architecture in place, adding a server requires that only a subset of the total keys 
+need to be remapped, and only one node's database needs to be redistributed as a result. When 
+you remove a server, you only need to migrate the removed node's database to the node ahead of 
+it on the circle. Most of this magic happens in the load balancer, as it decides where to send 
+a request concerning a certain short based on the hash-to-long of that short.
+
+On each server there are two processes running. The URLShortner process and the Database process.
+
+The URLShortner accepts connections from the LoadBalancer. It creates a URLShortnerThread for each 
+connection that comes through. The thread reads the http requests from the client and creates the 
+proper request to the Database process (e.g. FIND short, INSERT short long). The thread reads what
+the Database process responds and formulates an appropriate http response.
+
+The Database process accepts connections from the URLShortner process. It creates a DatabaseThread for each 
+connection that comes through and reads the request. For FIND requests it does a select query on the sqlite 
+database in /virtual/$USER/database.db and returns a value to URLShortner if it finds one. For INSERT requests,
+it inserts or repaces the key value pair in the same database.
+
+The URLShortner process is also suppose to send a message 'PING' through sockets to the Database 
+process every few seconds and expects the response 'PONG'. This is to check if the database process 
+is alive. If no response or unable to connect, the URLShortner was suppose to start a bash script
+that relaunches the database process. The script is implemented but was never hooked up the URLShortner
+process and tested.
+
+Both the URLShortner and Database processes have their own config file called 'URLShortner.config'
+and 'Database.config' respectfully. These contain values that the processes read so that they can
+be configured. The processes also check if the file is modified every few seconds and updates the 
+configuration it it has.
+
+Every few seconds (can be configured in the config) the Database process backs up the sqlite database.
+It executes a bash script that calles sqlite3 to clone the database to /virtual/$USER/copy/database.db.
+A script is then called to read /virtual/$USER/backupHost.txt for the backup host and then moves the
+copy database to the backup host's /virtual/$USER/backup/database.db.
+
+On startup of the database process, it copies the backup database from the backup host into its own 
+/virtual/$USER/database.db. This is to allow recovery.
+
+Running the system
+
+The shellScripts directory has a script-doc.txt that explains the scripts for running the service.
+In summary startService starts the LoadBalancer and servers. It picks the top host in hosts as 
+the load balancer and the rest as servers. It maps the servers' backups so that they form a ring 
+of backups. stopService stops the processes that were launched.
+
+Monitoring the system (NOT YET TESTED)
+
+There is a monitor script that checks all of the API hosts and the loadbalancer one by one. It's designed to attempt to ssh in to
+each of these hosts; if it cannot, then it alerts the user. If it can, it checks if the appropriate java processes are running on 
+each system. For every process that isn't running, the script will attempt to restart that particular process.
+
+Testing
+
+In performanceTesting abTestServerRead launches one server and sends several 50000 read requests with varying concurent connections
+at localhost8080. Puts data in read_XX.tsv where XX is the ammount of concurent requests. It then graphs it with
+gnuplot. abTestServiceRead does the same except tests on multiple servers with load balancer. 
+
+We also have testServerRead and testServiceRead that tests one put and one get request on a single server and multiple servers
+respectfully.
+
+Analysis
+
+With the ab tests we did we saw no significant improvment to handling more concurrent requests. This is probably because we moved
+the bottleneck from the servers to the load balancer. With many concurrent requests the loadbalancer has
+trouble sending it out to the correct server but the overall strain on the servers is reduced.

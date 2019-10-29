@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd ../db
+
+curr_user=`whoami`
+sed -i "s/user/$curr_user/" Database.config
+
+mkdir -p /virtual/$curr_user
+mkdir -p /virtual/$curr_user/copy/
+mkdir -p /virtual/$curr_user/backup/
+
+nohup java -classpath ".:sqlite-jdbc-3.27.2.1.jar" Database > ../shellScripts/out/db$1.out < /dev/null &
+echo $! > ../shellScripts/pids/dbs$1.pid

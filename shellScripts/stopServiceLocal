@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]
+then
+	echo "Usage: ./stopServiceLocal [hostname]"
+else
+	cd pids
+	PIDS=`ls | grep $1 | xargs cat`
+	echo $1 $PIDS
+	if [[ ! -z $PIDS ]]
+	then
+		kill $PIDS 
+	fi
+
+	ls | grep $1 | xargs rm -rf
+	
+	cd ../../db/
+	curr_user=`whoami`
+	sed -i "s/$curr_user/user/" Database.config
+fi
+
+

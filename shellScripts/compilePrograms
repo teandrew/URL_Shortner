@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd ../shellScripts
+javac *.java
+
+cd ../LoadBalancer
+javac *.java
+
+cd ../db
+javac *.java
+
+cd ../URLShortner
+javac *.java

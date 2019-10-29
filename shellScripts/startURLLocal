@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd ../URLShortner/
+nohup java URLShortner > ../shellScripts/out/ser$1.out < /dev/null &
+echo $! > ../shellScripts/pids/ser$1.pid

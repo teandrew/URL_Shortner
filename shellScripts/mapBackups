@@ -1,0 +1,17 @@
+#!/bin/bash
+CWD="`pwd`"
+curr_user=`whoami`
+
+NUM_LINES=`wc -l hosts | tr ' ' '\n' | head -1`
+
+if [ $NUM_LINES -gt 2 ]
+then
+	for host in `tail -n +2 hosts`
+	do
+		backupHost=`java NextHost $host`
+		echo "host:" $host "backup:" $backupHost
+		echo $backupHost > backupHost$host.txt
+		ssh $host "mkdir -p /virtual/$curr_user; cat $CWD/backupHost$host.txt > /virtual/$curr_user/backupHost.txt"
+	done
+fi
+#rm -rf backupHost*

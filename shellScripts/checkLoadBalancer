@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+PID=`cat pids/prx*`
+
+if ! kill -0 $PID > /dev/null 2>&1; # If the process is not running
+then
+	echo "LoadBalancer down -- restarting..."
+	./startLoadBalancer $1
+	echo "OK"
+else # the process is running
+	echo "OK"
+fi

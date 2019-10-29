@@ -1,0 +1,5 @@
+#!/bin/bash
+# Startup Nodes
+./startURLLocal $1
+# Startup Database
+./startDbLocal $1

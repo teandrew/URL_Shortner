@@ -1,0 +1,11 @@
+#!/bin/bash
+CWD="`pwd`"
+
+if [ $# -ne 2 ]
+then
+	echo "Usage: ./launchService [hostname] [service-type]"
+else
+	[[ $2 == "dbs" ]] && service="startDbLocal" || service="startURLLocal"
+
+	ssh $1 "cd \"$CWD\"; ./$service $1;"
+fi

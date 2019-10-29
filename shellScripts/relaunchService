@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]
+then
+	echo "Usage: ./relaunchService [hostname] [service-type]"
+else
+	./killService $1 $2
+
+	./launchService $1 $2
+fi

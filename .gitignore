@@ -1,0 +1,8 @@
+performanceTesting/*.png
+performanceTesting/*.tsv
+performanceTesting/*.jpg
+
+
+*.class
+
+

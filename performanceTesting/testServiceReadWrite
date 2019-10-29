@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Start servers
+echo 'Starting up servers'
+cd ../shellScripts
+bash startService
+
+# Wait for server to startup
+echo "waiting 5 seconds"
+sleep 5
+
+curl -X PUT 'http://localhost:8080/?short=AAA&long=http://hello'
+sleep 1
+
+curl -X GET 'http://localhost:8080/AAA'
+sleep 1
+
+# Stop server locally
+echo "Stopping servers"
+cd ../shellScripts
+bash stopService

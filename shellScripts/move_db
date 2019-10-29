@@ -1,0 +1,14 @@
+#!/bin/bash
+
+curr_user=`whoami`
+if [ $# -ne 3 ] && [ $# -ne 4 ]
+then	
+	echo "Usage: ./move_db <source path> <host> <destination path> [-r (reverse)]"
+else
+	if [ $# = 4 ]
+	then
+		rsync $2:$1 $3
+	else
+		rsync $1 $2:$3
+	fi
+fi

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CURR_HOST=`hostname`
+PID=`cat pids/ser$CURR_HOST.pid`
+
+
+if ! kill -0 $PID > /dev/null 2>&1; # If the process is not running
+then
+	echo "URLShortner down -- restarting..."
+	./startURLLocal $1
+	echo "OK"
+else # the process is running
+	echo "URLShortner OK"
+fi

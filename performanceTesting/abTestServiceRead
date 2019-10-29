@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Start servers
+echo 'Starting up servers'
+cd ../shellScripts
+#bash startService
+
+# Wait for server to startup
+echo "waiting 5 seconds"
+sleep 5
+
+# test 1000 reads with 10 concurrent connections
+cd ../performanceTesting
+echo "Performing ab test: 50000 reads with 10 concurrent connections"
+ab -n 50000 -c 10 -g read_10.tsv http://localhost:8080/000000000000000000000000000000000000000
+gnuplot -c plotTimeSeries read_10.tsv read_10.jpg
+gnuplot -c plotHistogram read_10.tsv read_10.png
+
+echo "Performing ab test: 50000 reads with 100 concurrent connections"
+ab -n 50000 -c 100 -g read_100.tsv http://localhost:8080/000000000000000000000000000000000000000
+gnuplot -c plotTimeSeries read_100.tsv read_100.jpg
+gnuplot -c plotHistogram read_100.tsv read_100.png
+
+echo "Performing ab test: 50000 reads with 200 concurrent connections"
+ab -n 50000 -c 200 -g read_200.tsv http://localhost:8080/000000000000000000000000000000000000000
+gnuplot -c plotTimeSeries read_200.tsv read_200.jpg
+gnuplot -c plotHistogram read_200.tsv read_200.png
+
+echo "Performing ab test: 50000 reads with 300 concurrent connections"
+ab -n 50000 -c 300 -g read_300.tsv http://localhost:8080/000000000000000000000000000000000000000
+gnuplot -c plotTimeSeries read_300.tsv read_300.jpg
+gnuplot -c plotHistogram read_300.tsv read_300.png
+
+# Stop server locally
+echo "Stopping servers"
+cd ../shellScripts
+#bash stopService

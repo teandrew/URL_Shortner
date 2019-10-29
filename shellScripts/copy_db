@@ -1,0 +1,11 @@
+#!/bin/bash
+
+curr_user=`whoami`
+if [ $# -ne 2 ]
+then	
+	echo "Usage: ./copy_db <source path> <copy path>"
+else
+    echo $1
+    echo $2
+	sqlite3 $1 ".backup '$2'"
+fi

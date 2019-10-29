@@ -1,0 +1,55 @@
+
+copy_db 
+	- takes in 2 arguments: source path, copy path
+	- calls sqlite3 create a backup.db file from source to copy path
+
+killService
+	- takes in 2 arguments: hostname, service-type ("dbs" or "ser")
+	- gets pid from service from pids directory
+	- ssh to hostname and stops the service
+
+launchService
+	- takes in 2 arguments: hostname, service-type ("dbs" or "ser")
+	- ssh to hostname and calls script to launch specific service
+
+mapBackups
+	- maps and creates a file for which host has its backup db file
+
+monitor
+	- monitors load balancer every minute to check if it is up
+	  if it isn't, restart it
+
+move_db
+	- takes in 3-4 arguments: source path, host, destination path  
+	- uses rsync to copy file from host:source to destination 
+
+nextHost
+	- takes in 1 argument: hostname
+	- returns the server that contains the hostname's backup based on
+	  consistent hashing
+
+relaunchService
+	- takes in 2 arguments: hostname, service-type ("dbs" or "ser")
+	- runs killService and then launchService
+
+startDbLocal
+	- creates necessary db directories in /virtual/$user
+	- starts up Database process 
+
+startURLLocal
+	- starts up URLShortner process
+
+startService
+	- ssh to first host in hosts file and starts LoadBalancer
+	- ssh to all other hosts in hosts file and call startServiceLocal
+
+startServiceLocal
+	- takes in 1 argument: hostname
+	- calls startURLLocal and startDbLocal on current host machine
+
+stopService
+	- ssh to all hosts in hosts file and calls stopServiceLocal
+
+stopServiceLocal
+	- takes in 1 argument: hostname
+	- gets pid of all services in hostname and kills them2

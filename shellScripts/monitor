@@ -1,0 +1,36 @@
+#!/bin/bash
+CWD="`pwd`"
+
+# Start Proxy Server
+LOAD_HOST=`head -n 1 $CWD/hosts`
+
+echo "Monitor started..."
+
+while :
+do
+	echo "Checking if load balancer is working as expected..."
+	ssh $LOAD_HOST "cd \"$CWD\"; ./checkLoadBalancer $LOAD_HOST"
+	
+	if [[ $? -ne 0 ]] # If SSH failed
+	then
+		echo "WARNING: Could not connect to load balancer on $LOAD_HOST ; server may be down!"
+	fi
+	
+	
+	
+	
+	for host in `tail -n +2 $CWD/hosts`
+	do
+		echo "Checking if $host is working as expected..."
+		ssh $host "cd \"$CWD\"; ./checkServiceLocal $host;"
+		
+		if [[ $? -ne 0 ]] # If SSH failed
+		then
+			echo "WARNING: Could not connect to $host ; server may be down!"
+		fi
+	done
+	
+	
+	echo "Sleeping.."
+	sleep 10
+done

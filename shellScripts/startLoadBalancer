@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd ../LoadBalancer/
+nohup java LoadBalancer > ../shellScripts/out/prx$1.out < /dev/null &
+echo $! > ../shellScripts/pids/prx$1.pid

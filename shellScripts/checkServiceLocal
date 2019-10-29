@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Check local API
+./checkURLLocal $1
+# Check local db
+./checkDbLocal $1
